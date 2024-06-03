@@ -13,18 +13,70 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id           Int            @id @default(autoincrement())
+  email        String         @unique
+  password     String
+  firtName     String?
+  lastName     String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  UserProgress UserProgress[]
+  UserQuestion UserQuestion[]
 
-model User{
   @@map("users")
+}
 
-  id Int @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model UserProgress {
+  userId         Int      @id
+  totalQuestions Int      @default(0)
+  totalCorrects  Int      @default(0)
+  totalPoints    Int      @default(0)
+  level          Int      @default(1)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  email String @unique
-  password String
+  @@map("user_progresses")
+}
 
-  firtName String?
-  lastName String?
+model Question {
+  id             Int              @id @default(autoincrement())
+  question       String
+  level          String
+  points         Int
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  QuestionOption QuestionOption[]
+  UserQuestion   UserQuestion[]
 
+  @@map("questions")
+}
+
+model QuestionOption {
+  id          Int      @id @default(autoincrement())
+  option      String
+  correct     Boolean
+  description String
+  questionId  Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@map("question_options")
+}
+
+model UserQuestion {
+  id           Int       @id @default(autoincrement())
+  userId       Int
+  questionId   Int
+  answered     Boolean   @default(false)
+  maxPoints    Int
+  earnedPoints Int       @default(0)
+  askedAt      DateTime  @default(now())
+  answeredAt   DateTime?
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question     Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@map("user_questions")
 }
