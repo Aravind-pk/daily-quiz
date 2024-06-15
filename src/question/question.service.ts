@@ -1,6 +1,7 @@
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import { Question, User, UserQuestion } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { AnswerQuestionReqDto } from './dto';
 
 @Injectable()
 export class QuestionService {
@@ -64,8 +65,72 @@ export class QuestionService {
         return newQuestions
     }
 
-    answerQuestion() {
-        throw NotImplementedException
+    async answerQuestion(user :User , answerQuestionReq : AnswerQuestionReqDto) {
+        //check if the user was asked this question today.
+        const dayTimeRange = this.getDayRangeUTC(new Date())
+        const userQuestion = await this.prismaService.userQuestion.findFirst({
+            where:{
+                userId:user.id,
+                questionId:answerQuestionReq.questionId,
+                askedAt:{
+                    gte:dayTimeRange.startTime,
+                    lte:dayTimeRange.endTime
+                },
+            },
+            include:{
+                question:{
+                    select:{
+                        points:true,
+                        QuestionOption:{
+                            select:{
+                                id:true,
+                                option:true,
+                                description:true,
+                                correct:true
+                            }
+                        }
+                    }
+                }
+            }
+        })
+
+        if(!userQuestion) return "user cant answer this question"
+
+        //check if already answered
+        
+        //get option
+        const option = userQuestion.question.QuestionOption.find(option => option.id == answerQuestionReq.optionId)
+        if(!option) return "no option found"
+
+        //if correct add points to user  
+        if (option.correct){
+            await this.prismaService.userProgress.update({
+                where:{
+                    userId:user.id,
+                },
+                data:{
+                    totalPoints:{
+                        increment: userQuestion.question.points
+                    },
+                
+                }
+            })
+
+            await this.prismaService.userQuestion.update({
+                where:{
+                    id:userQuestion.id,
+                },
+                data:{
+                    answered: option.correct,
+                
+                }
+            })
+
+        }
+        
+
+        //reveal the answers : return all option with descriptons
+        return userQuestion.question.QuestionOption
     }
 
     

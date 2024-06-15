@@ -1,9 +1,10 @@
-import { Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { get } from 'http';
 import { QuestionService } from './question.service';
 import { JwtGuard } from 'src/auth/guard';
 import { GetUser } from 'src/auth/decorator';
 import { User } from '@prisma/client';
+import { AnswerQuestionReqDto } from './dto';
 
 @UseGuards(JwtGuard)
 @Controller('questions')
@@ -16,13 +17,13 @@ export class QuestionController {
     }
 
     @Post('answer')
-    answerQuestion(){
-        return this.questionService.answerQuestion();
+    answerQuestion(@Body() answerQuestionReq: AnswerQuestionReqDto ,@GetUser() user: User ){
+        return this.questionService.answerQuestion(user , answerQuestionReq);
     }
 
     @Post('answer-multiple')
     answerQuestions(){
-        return this.questionService.answerQuestion();
+        return this.questionService.answerQuestions();
     }
 
 }

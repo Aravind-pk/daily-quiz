@@ -24,6 +24,9 @@ export class AuthService {
         data: {
           email: dto.email,
           password: hashedPassword,
+          UserProgress:{
+            create:{}
+          }
         },
       });
 
