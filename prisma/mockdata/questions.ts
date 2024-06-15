@@ -2,7 +2,7 @@ export const QuestionList = [
   // Level 1 Questions
   {
     question: 'What is the capital of France?',
-    level: '1',
+    level: 1,
     points: 100,
     options: [
       { option: 'Paris', correct: true, description: 'Capital of France' },
@@ -12,7 +12,7 @@ export const QuestionList = [
   },
   {
     question: 'What is 2 + 2?',
-    level: '1',
+    level: 1,
     points: 100,
     options: [
       { option: '3', correct: false, description: 'Incorrect' },
@@ -22,7 +22,7 @@ export const QuestionList = [
   },
   {
     question: 'What is the largest planet in our solar system?',
-    level: '1',
+    level: 1,
     points: 100,
     options: [
       { option: 'Earth', correct: false, description: 'Earth is not the largest planet.' },
@@ -32,7 +32,7 @@ export const QuestionList = [
   },
   {
     question: 'What is the boiling point of water?',
-    level: '1',
+    level: 1,
     points: 100,
     options: [
       { option: '90°C', correct: false, description: '90°C is below boiling point.' },
@@ -42,7 +42,7 @@ export const QuestionList = [
   },
   {
     question: 'Who wrote "Hamlet"?',
-    level: '1',
+    level: 1,
     points: 100,
     options: [
       { option: 'Charles Dickens', correct: false, description: 'Charles Dickens did not write "Hamlet".' },
@@ -52,7 +52,7 @@ export const QuestionList = [
   },
   {
     question: 'What is the speed of light?',
-    level: '1',
+    level: 1,
     points: 100,
     options: [
       { option: '300,000 km/s', correct: true, description: 'The speed of light is approximately 300,000 km/s.' },
@@ -62,7 +62,7 @@ export const QuestionList = [
   },
   {
     question: 'What is the chemical symbol for water?',
-    level: '1',
+    level: 1,
     points: 100,
     options: [
       { option: 'O2', correct: false, description: 'O2 is the symbol for oxygen.' },
@@ -72,7 +72,7 @@ export const QuestionList = [
   },
   {
     question: 'Who was the first president of the United States?',
-    level: '1',
+    level: 1,
     points: 100,
     options: [
       { option: 'Abraham Lincoln', correct: false, description: 'Abraham Lincoln was the 16th president.' },
@@ -82,7 +82,7 @@ export const QuestionList = [
   },
   {
     question: 'What is the largest ocean on Earth?',
-    level: '1',
+    level: 1,
     points: 100,
     options: [
       { option: 'Atlantic Ocean', correct: false, description: 'Atlantic Ocean is the second largest.' },
@@ -92,11 +92,11 @@ export const QuestionList = [
   },
   {
     question: 'What is the smallest prime number?',
-    level: '1',
+    level: 1,
     points: 100,
     options: [
       { option: '0', correct: false, description: '0 is not a prime number.' },
-      { option: '1', correct: false, description: '1 is not a prime number.' },
+      { option: '4', correct: false, description: '4 is not a prime number.' },
       { option: '2', correct: true, description: '2 is the smallest prime number.' },
     ],
   },
@@ -104,7 +104,7 @@ export const QuestionList = [
   // Level 2 Questions
   {
     question: 'What is the powerhouse of the cell?',
-    level: '2',
+    level: 2,
     points: 200,
     options: [
       { option: 'Nucleus', correct: false, description: 'Nucleus is the control center of the cell.' },
@@ -114,7 +114,7 @@ export const QuestionList = [
   },
   {
     question: 'What is the capital of Australia?',
-    level: '2',
+    level: 2,
     points: 200,
     options: [
       { option: 'Sydney', correct: false, description: 'Sydney is the largest city, but not the capital.' },
@@ -124,7 +124,7 @@ export const QuestionList = [
   },
   {
     question: 'What is the hardest natural substance on Earth?',
-    level: '2',
+    level: 2,
     points: 200,
     options: [
       { option: 'Gold', correct: false, description: 'Gold is not the hardest natural substance.' },
@@ -134,7 +134,7 @@ export const QuestionList = [
   },
   {
     question: 'Who painted the Mona Lisa?',
-    level: '2',
+    level: 2,
     points: 200,
     options: [
       { option: 'Vincent van Gogh', correct: false, description: 'Vincent van Gogh did not paint the Mona Lisa.' },
@@ -144,7 +144,7 @@ export const QuestionList = [
   },
   {
     question: 'What is the chemical symbol for gold?',
-    level: '2',
+    level: 2,
     points: 200,
     options: [
       { option: 'Go', correct: false, description: 'Go is not the chemical symbol for gold.' },
@@ -154,7 +154,7 @@ export const QuestionList = [
   },
   {
     question: 'What is the tallest mountain in the world?',
-    level: '2',
+    level: 2,
     points: 200,
     options: [
       { option: 'K2', correct: false, description: 'K2 is the second tallest mountain.' },
@@ -164,7 +164,7 @@ export const QuestionList = [
   },
   {
     question: 'What is the longest river in the world?',
-    level: '2',
+    level: 2,
     points: 200,
     options: [
       { option: 'Amazon River', correct: false, description: 'Amazon River is the second longest river.' },
@@ -174,7 +174,7 @@ export const QuestionList = [
   },
   {
     question: 'Who is known as the father of computers?',
-    level: '2',
+    level: 2,
     points: 200,
     options: [
       { option: 'Bill Gates', correct: false, description: 'Bill Gates is not known as the father of computers.' },
@@ -184,7 +184,7 @@ export const QuestionList = [
   },
   {
     question: 'What is the main ingredient in traditional Japanese miso soup?',
-    level: '2',
+    level: 2,
     points: 200,
     options: [
       { option: 'Tofu', correct: false, description: 'Tofu is commonly included but not the main ingredient.' },
@@ -194,7 +194,7 @@ export const QuestionList = [
   },
   {
     question: 'What is the largest desert in the world?',
-    level: '2',
+    level: 2,
     points: 200,
     options: [
       { option: 'Sahara Desert', correct: false, description: 'Sahara Desert is the largest hot desert.' },
