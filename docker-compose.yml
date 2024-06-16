@@ -8,7 +8,17 @@ services:
       POSTGRES_PASSWORD: password 
       POSTGRES_DB: nest
     networks:
-      - dev
+      - nestapp
+  test-db:
+    image: postgres:16
+    ports:
+      - 5435:5432
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password 
+      POSTGRES_DB: nest
+    networks:
+      - nestapp
 
 networks:
-  dev:
+  nestapp:
