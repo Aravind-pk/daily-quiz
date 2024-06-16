@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotImplementedException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotImplementedException } from '@nestjs/common';
 import { Question, User, UserQuestion } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AnswerQuestionReqDto } from './dto';
@@ -33,7 +33,8 @@ export class QuestionService {
         const newUserQuestions = newQuestions.map(question => ({
             userId: user.id,
             questionId: question.id,
-            maxPoints: question.points
+            maxPoints: question.points,
+            askedAt: new Date().toISOString() //store date in UTC
         } ))
 
         //add the questions to userquestions
@@ -78,6 +79,7 @@ export class QuestionService {
         if(!userQuestion) throw new BadRequestException("The requested question was not asked to the user today, or wanst asked at all")
 
         //TODO: check if already answered
+        if(userQuestion.answered) throw new ForbiddenException("This question have already been answered")
         
         //check if option is valid
         const option = userQuestion.question.QuestionOption.find(option => option.id == answerQuestionReq.optionId)
@@ -93,21 +95,24 @@ export class QuestionService {
                     totalPoints:{
                         increment: userQuestion.question.points
                     },
+                    totalCorrects:{
+                        increment:1
+                    }
                 
                 }
             })
-
-            await this.prismaService.userQuestion.update({
-                where:{
-                    id:userQuestion.id,
-                },
-                data:{
-                    answered: option.correct,
-                
-                }
-            })
-
         }
+
+        
+        await this.prismaService.userQuestion.update({
+            where:{
+                id:userQuestion.id,
+            },
+            data:{
+                answered: true,
+                answeredAt: new Date().toISOString() //convert to UTC 
+            }
+        })
 
         //reveal the answers : return all option with descriptons -- * irrespecitve of the option
         return userQuestion.question.QuestionOption
