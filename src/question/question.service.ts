@@ -1,4 +1,4 @@
-import { Injectable, NotImplementedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotImplementedException } from '@nestjs/common';
 import { Question, User, UserQuestion } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AnswerQuestionReqDto } from './dto';
@@ -11,10 +11,10 @@ export class QuestionService {
     ){}
 
     async getDaily(user : User) {
-        //check if user already have questions today: if yes return the questions
+        //if user already have question today return questions with options.
         const today = new Date();
         const dayTimeRange = this.getDayRangeUTC(today)
-        const questions = await this.prismaService.userQuestion.findMany({
+        const questionsToday = await this.prismaService.userQuestion.count({
             where:{
                 userId:user.id,
                 askedAt:{
@@ -22,31 +22,13 @@ export class QuestionService {
                     lte:dayTimeRange.endTime
                 },
             },
-            select:{
-                questionId:true,
-                answered:true,
-                answeredAt:true,
-                question:{
-                    select:{
-                        question:true,
-                        QuestionOption:{
-                            select:{
-                                id:true,
-                                option:true,
-                            }
-                        }
-                    }
-                }
-            }
-
         })
 
-        if (questions.length > 0){
-            return questions
+        if (questionsToday > 0){
+            return this.getTodaysQuestion(user);
         }
 
         //else pick 5 new questions 
-
         const newQuestions = await this.pickNewQuestions(user , 1 ,5 )
         const newUserQuestions = newQuestions.map(question => ({
             userId: user.id,
@@ -55,17 +37,16 @@ export class QuestionService {
         } ))
 
         //add the questions to userquestions
-
         await this.prismaService.userQuestion.createMany({
             data: newUserQuestions
         })
 
         //return the questions with options
-
-        return newQuestions
+        return this.getTodaysQuestion(user)
     }
 
     async answerQuestion(user :User , answerQuestionReq : AnswerQuestionReqDto) {
+
         //check if the user was asked this question today.
         const dayTimeRange = this.getDayRangeUTC(new Date())
         const userQuestion = await this.prismaService.userQuestion.findFirst({
@@ -94,15 +75,15 @@ export class QuestionService {
             }
         })
 
-        if(!userQuestion) return "user cant answer this question"
+        if(!userQuestion) throw new BadRequestException("The requested question was not asked to the user today, or wanst asked at all")
 
-        //check if already answered
+        //TODO: check if already answered
         
-        //get option
+        //check if option is valid
         const option = userQuestion.question.QuestionOption.find(option => option.id == answerQuestionReq.optionId)
-        if(!option) return "no option found"
+        if(!option) throw new BadRequestException("Invalid option for the requested question")
 
-        //if correct add points to user  
+        //if correct -> update userprogress and userquestion
         if (option.correct){
             await this.prismaService.userProgress.update({
                 where:{
@@ -127,9 +108,8 @@ export class QuestionService {
             })
 
         }
-        
 
-        //reveal the answers : return all option with descriptons
+        //reveal the answers : return all option with descriptons -- * irrespecitve of the option
         return userQuestion.question.QuestionOption
     }
 
@@ -179,5 +159,35 @@ export class QuestionService {
 
         return newQuestions
         
+    }
+
+    private async getTodaysQuestion(user: User){
+        const dayTimeRange = this.getDayRangeUTC(new Date())
+        const questions = await this.prismaService.userQuestion.findMany({
+            where:{
+                userId:user.id,
+                askedAt:{
+                    gte:dayTimeRange.startTime,
+                    lte:dayTimeRange.endTime
+                },
+            },
+            select:{
+                questionId:true,
+                answered:true,
+                answeredAt:true,
+                question:{
+                    select:{
+                        question:true,
+                        QuestionOption:{
+                            select:{
+                                id:true,
+                                option:true,
+                            }
+                        }
+                    }
+                }
+            }
+        })
+        return questions
     }
 }
