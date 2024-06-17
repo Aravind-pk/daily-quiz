@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import { get } from 'http';
 import { QuestionService } from './question.service';
 import { JwtGuard } from 'src/auth/guard';
@@ -16,6 +16,7 @@ export class QuestionController {
         return this.questionService.getDaily(user);
     }
 
+    @HttpCode(HttpStatus.OK)
     @Post('answer')
     answerQuestion(@Body() answerQuestionReq: AnswerQuestionReqDto ,@GetUser() user: User ){
         return this.questionService.answerQuestion(user , answerQuestionReq);
