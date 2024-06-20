@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -14,4 +14,17 @@ export class UserProgressService {
             }
         })
     }
+
+    async getById(userId: number) {
+        const userProgress = await this.prismaService.userProgress.findUnique({
+          where: {
+            userId: userId,
+          }
+        });
+    
+        if (!userProgress) throw new NotFoundException(`The user with id ${userId} not found`);
+    
+        return userProgress;
+      }
+
 }

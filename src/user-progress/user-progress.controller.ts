@@ -1,10 +1,11 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { Controller, Get, Param, ParseIntPipe, UseGuards } from '@nestjs/common';
+import { Role, User } from '@prisma/client';
 import { GetUser } from 'src/auth/decorator';
-import { JwtGuard } from 'src/auth/guard';
+import { JwtGuard, RolesGuard } from 'src/auth/guard';
 import { UserProgressService } from './user-progress.service';
+import { Roles } from 'src/auth/decorator/roles.decorator';
 
-@UseGuards(JwtGuard)
+@UseGuards(JwtGuard, RolesGuard)
 @Controller('user-progress')
 export class UserProgressController {
     constructor(private userProgressService: UserProgressService){}
@@ -12,6 +13,12 @@ export class UserProgressController {
     @Get("me")
     getUserProgress(@GetUser() user:User){
         return this.userProgressService.getUserProgress(user)
+    }
+
+    @Roles(Role.ADMIN)
+    @Get(':id')
+    getById(@Param('id' , ParseIntPipe) id: number){
+        return this.userProgressService.getById(id)
     }
 
 }
