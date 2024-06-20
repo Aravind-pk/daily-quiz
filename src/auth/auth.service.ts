@@ -5,6 +5,7 @@ import * as argon from 'argon2';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -26,7 +27,8 @@ export class AuthService {
           password: hashedPassword,
           UserProgress:{
             create:{}
-          }
+          },
+          role:Role.USER //set role to user by default
         },
       });
 
