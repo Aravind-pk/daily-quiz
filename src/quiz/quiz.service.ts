@@ -1,11 +1,11 @@
 import { BadRequestException, ForbiddenException, Injectable, NotImplementedException } from '@nestjs/common';
-import { Question, User, UserQuestion } from '@prisma/client';
+import { Question, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AnswerQuestionReqDto } from './dto';
 
 @Injectable()
-export class QuestionService {
-
+export class QuizService {
+    
     constructor(
         private prismaService: PrismaService
     ){}
@@ -195,4 +195,5 @@ export class QuestionService {
         })
         return questions
     }
+
 }

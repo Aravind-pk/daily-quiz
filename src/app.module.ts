@@ -6,8 +6,8 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { PrismaModule } from './prisma/prisma.module';
-import { QuestionModule } from './question/question.module';
 import { UserProgressModule } from './user-progress/user-progress.module';
+import { QuizModule } from './quiz/quiz.module';
 
 @Module({
   imports: [ 
@@ -16,7 +16,7 @@ import { UserProgressModule } from './user-progress/user-progress.module';
     }),
     AuthModule, 
     UserModule, 
-    PrismaModule, QuestionModule, UserProgressModule
+    PrismaModule, UserProgressModule, QuizModule
   ],
   controllers: [AppController],
   providers: [AppService],

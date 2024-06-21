@@ -121,11 +121,11 @@ describe('AppController (e2e)', () => {
   });
 
 
-  describe('Question', () => {
+  describe('Quiz', () => {
     it('should get questions', async () => {
       await pactum
         .spec()
-        .get('/questions/today')
+        .get('/quiz/today')
         .withHeaders({
           'Authorization': 'Bearer $S{userToken}'
         })
@@ -137,7 +137,7 @@ describe('AppController (e2e)', () => {
     it('should get same questions again', async () => {
         questionsAsked = await pactum
         .spec()
-        .get('/questions/today')
+        .get('/quiz/today')
         .withHeaders({
           'Authorization': 'Bearer $S{userToken}'
         })
@@ -155,7 +155,7 @@ describe('AppController (e2e)', () => {
     it('should throw on no optionId', async () => {
       await pactum
         .spec()
-        .post('/questions/answer')
+        .post('/quiz/answer')
         .withHeaders({
           'Authorization': 'Bearer $S{userToken}'
         })
@@ -170,7 +170,7 @@ describe('AppController (e2e)', () => {
     it('should throw on invalid optionId', async () => {
       await pactum
         .spec()
-        .post('/questions/answer')
+        .post('/quiz/answer')
         .withHeaders({
           'Authorization': 'Bearer $S{userToken}'
         })
@@ -185,7 +185,7 @@ describe('AppController (e2e)', () => {
     it('should throw on invalid questionId', async () => {
       await pactum
         .spec()
-        .post('/questions/answer')
+        .post('/quiz/answer')
         .withHeaders({
           'Authorization': 'Bearer $S{userToken}'
         })
@@ -201,7 +201,7 @@ describe('AppController (e2e)', () => {
       console.log(questionsAsked[0].question)
       await pactum
         .spec()
-        .post('/questions/answer')
+        .post('/quiz/answer')
         .withHeaders({
           'Authorization': 'Bearer $S{userToken}'
         })
@@ -217,7 +217,7 @@ describe('AppController (e2e)', () => {
       console.log(questionsAsked[0].question)
       await pactum
         .spec()
-        .post('/questions/answer')
+        .post('/quiz/answer')
         .withHeaders({
           'Authorization': 'Bearer $S{userToken}'
         })
