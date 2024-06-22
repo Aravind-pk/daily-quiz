@@ -20,6 +20,7 @@ This project was build to provides a hands-on experience in developing with Next
 **Endpoint:** `GET /quiz/today`
 
 - check if the user already have questions today : return
+- get current user level
 - pick 5 new questions of appropriate level
 - add questins to userquestions: return with options (without discription)
 
@@ -30,6 +31,7 @@ This project was build to provides a hands-on experience in developing with Next
 - check if valid Question ( asked today for the user, not answered already)
 - check if valid option
 - update user progress with points, mark question as answered
+- update userlevel if total score exceed current level threshold
 - return all options for the question with description (explanation) **even if answer is wrong
 
 
