@@ -1,73 +1,150 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Quiz Game API 
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Welcome to the Quiz Game API documentation. This API provides a straightforward way for users to engage in daily quizzes consisting of multiple-choice questions.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+This project was build to provides a hands-on experience in developing with Next.js, utilizing Prisma with leveraging PostgreSQL.
 
-## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Features
 
-## Installation
+- **Daily Quizzes:** Users receive five new multiple-choice questions daily.
+- **Answer Feedback:** After answering, users can view all answer options and their explanations.
+- **TIme zone imunity:** Timestamps for questions asked and answered are stored and processed at UTC to elememinate any possible loss or gain of the answering window.
+- **Role-Based Access:** Editors can manage questions, while administrators have broader access to manage both questions and users.
+- **JWT Authentication:** Secure authentication using JSON Web Tokens (JWT) ensures authorized access to API endpoints.
+
+## Endpoints Overview
+
+### Get Today's Questions
+
+**Endpoint:** `GET /quiz/today`
+
+- check if the user already have questions today : return
+- pick 5 new questions of appropriate level
+- add questins to userquestions: return with options (without discription)
+
+### Answer Question
+
+**Endpoint:** `POST /quiz/answer`
+
+- check if valid Question ( asked today for the user, not answered already)
+- check if valid option
+- update user progress with points, mark question as answered
+- return all options for the question with description (explanation) **even if answer is wrong
+
+
+### Add, Edit, Update, Delete Question
+
+**Endpoint:** 
+
+Basic `CRUD` for question, Role based Autthentication for **EDITOR, ADMIN**
+
+### Get Users
+
+**Endpoint:** 
+
+**User** can get their own user details and **ADMIN** can get users by ID
+
+### Users and UserProgress
+
+**Endpoint:** 
+
+**User** can get their own user and progress details and **ADMIN** can get both by ID
+## Database Schema
+
+### Users Table (`users`)
+
+| Column       | Type     | Description                        |
+|--------------|----------|------------------------------------|
+| id           | Int      | Unique identifier for each user.    |
+| email        | String   | User's email address.               |
+| password     | String   | User's password (hashed).           |
+| firstName    | String   | User's first name (optional).       |
+| lastName     | String   | User's last name (optional).        |
+| role         | Enum     | User's role (ADMIN, EDITOR, USER).  |
+| createdAt    | DateTime | Date and time of user creation.     |
+| updatedAt    | DateTime | Date and time of last update.       |
+
+### UserProgresses Table (`user_progresses`)
+
+| Column         | Type     | Description                          |
+|----------------|----------|--------------------------------------|
+| userId         | Int      | Foreign key referencing the Users table. |
+| totalQuestions | Int      | Total number of questions attempted.  |
+| totalCorrects  | Int      | Total number of correct answers.      |
+| totalPoints    | Int      | Total points accumulated by the user. |
+| level          | Int      | User's current level.                 |
+| createdAt      | DateTime | Date and time of creation.            |
+| updatedAt      | DateTime | Date and time of last update.         |
+
+### Questions Table (`questions`)
+
+| Column       | Type     | Description                       |
+|--------------|----------|-----------------------------------|
+| id           | Int      | Unique identifier for each question. |
+| question     | String   | The question text.                 |
+| level        | Int      | Difficulty level of the question.  |
+| points       | Int      | Points assigned to the question.   |
+| createdAt    | DateTime | Date and time of question creation.|
+| updatedAt    | DateTime | Date and time of last update.      |
+
+### QuestionOptions Table (`question_options`)
+
+| Column       | Type     | Description                             |
+|--------------|----------|-----------------------------------------|
+| id           | Int      | Unique identifier for each option.       |
+| option       | String   | The answer option text.                  |
+| correct      | Boolean  | Indicates if the option is correct.      |
+| description  | String   | Explanation or description of the option.|
+| questionId   | Int      | Foreign key referencing the Questions table. |
+| createdAt    | DateTime | Date and time of option creation.        |
+| updatedAt    | DateTime | Date and time of last update.            |
+
+### UserQuestions Table (`user_questions`)
+
+| Column       | Type     | Description                                |
+|--------------|----------|--------------------------------------------|
+| id           | Int      | Unique identifier for each user-question pair. |
+| userId       | Int      | Foreign key referencing the Users table.    |
+| questionId   | Int      | Foreign key referencing the Questions table.|
+| answered     | Boolean  | Indicates if the question has been answered. |
+| maxPoints    | Int      | Maximum points for the question.            |
+| earnedPoints | Int      | Points earned by the user for this question.|
+| askedAt      | DateTime | Date and time when the question was asked.  |
+| answeredAt   | DateTime | Date and time when the question was answered.|
+
+
+
+
+## End to End Tests
+
+The end-to-end tests for this application validate its core functionalities across various scenarios.Implemented using Buit-in Testing Module, **Pactum** for HTTP request assertions, these tests cover authentication, user progress tracking, quiz interactions, and question management.
+
+
+
+
+
+## Scripts
 
 ```bash
-$ yarn install
+$ yarn install 
+$ yarn db:dev:reset #resets the postgress db on docker.
+$ yarn db:dev:seed #preloads 20 mock question
+$ yarn start:dev
+
+##Tests
+# presets the test db, preloads 20 questions and start the e2e tsts
+yan test:e2e:watch
 ```
 
-## Running the app
+## Tech Stack/Tools used
 
-```bash
-# development
-$ yarn run start
+- Nest JS
+- Prisma
+- Postgress
+- Pactum
+- Passport
+- Docker
+- Insomnia
 
-# watch mode
-$ yarn run start:dev
-
-# production mode
-$ yarn run start:prod
-```
-
-## Test
-
-```bash
-# unit tests
-$ yarn run test
-
-# e2e tests
-$ yarn run test:e2e
-
-# test coverage
-$ yarn run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
+-----
