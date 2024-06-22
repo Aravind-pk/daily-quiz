@@ -5,6 +5,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { QuestionList } from '../../prisma/mockdata/questions';
 import { AuthDto } from 'src/auth/dto';
 import * as pactum from 'pactum';
+import { AddQuestionDto } from 'src/question/dto';
+import { Role } from '@prisma/client';
 
 
 describe('AppController (e2e)', () => {
@@ -51,14 +53,19 @@ describe('AppController (e2e)', () => {
     app.close();
   });
 
+  const dto: AuthDto = {
+    email: 'test@gmail.com',
+    password: '123',
+  };
+
   let questionsAsked = [];
   let userprogress = {}
 
+
   describe('Auth', () => {
-    const dto: AuthDto = {
-      email: 'test@gmail.com',
-      password: '123',
-    };
+
+
+
     describe('Signup', () => {
       it('should throw if email empty', async () => {
         await pactum
@@ -228,6 +235,107 @@ describe('AppController (e2e)', () => {
         .expectStatus(403)
         .expectBodyContains("This question have already been answered")
     });
+  });
+
+
+
+  describe('Questions', () => {
+
+    const question: AddQuestionDto = {
+      "question": "New test qustion",
+      "level": 1,
+      "points": 100,
+      "options": [
+        {
+          "option": "Earth",
+          "correct": false,
+          "description": "Earth is not the largest planet."
+        },
+        {
+          "option": "Jupiter",
+          "correct": true,
+          "description": "Jupiter is the largest planet."
+        },
+        {
+          "option": "Saturn",
+          "correct": false,
+          "description": "Saturn is the second largest planet."
+        }
+      ]
+    }
+
+
+    it('should throw on Role USER', async () => {
+      await pactum
+        .spec()
+        .post('/question/add')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userToken}'
+        })
+        .withJson(question)
+        .expectStatus(403)
+    });
+
+    it('should create new question', async () => {
+      //elevate user permission to editor
+      await prisma.user.update({
+        where:{
+          email:dto.email
+        },
+        data:{
+          role:Role.EDITOR
+        }
+      })
+      await pactum
+        .spec()
+        .post('/question/add')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userToken}'
+        })
+        .withJson(question)
+        .expectStatus(201)
+        .stores('newQuestionId', 'id');
+    });
+
+    it('should get new question', async () => {
+
+      await pactum
+        .spec()
+        .get('/question/$S{newQuestionId}')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userToken}'
+        })
+        .expectStatus(200)
+    });
+
+
+    it('should update question', async () => {
+
+      question.question = "new question text"
+      await pactum
+        .spec()
+        .patch('/question/$S{newQuestionId}')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userToken}'
+        })
+        .withJson(question)
+        .expectStatus(200)
+        .expectBodyContains(question.question)
+    });
+
+    it('should delete question', async () => {
+
+      question.question = "new question text"
+      await pactum
+        .spec()
+        .delete('/question/$S{newQuestionId}')
+        .withHeaders({
+          'Authorization': 'Bearer $S{userToken}'
+        })
+        .expectStatus(200)
+        .expectBodyContains('Question with ID $S{newQuestionId} deleted')
+    });
+   
   });
 
 });
