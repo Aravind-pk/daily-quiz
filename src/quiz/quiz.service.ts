@@ -2,12 +2,14 @@ import { BadRequestException, ForbiddenException, Injectable, NotImplementedExce
 import { Question, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AnswerQuestionReqDto } from './dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class QuizService {
     
     constructor(
-        private prismaService: PrismaService
+        private prismaService: PrismaService,
+        private config: ConfigService
     ){}
 
     async getDaily(user : User) {
@@ -28,8 +30,15 @@ export class QuizService {
             return this.getTodaysQuestion(user);
         }
 
+        //get current user level
+        const userProgress = await this.prismaService.userProgress.findUnique({
+            where:{userId:user.id},
+            select:{level:true}
+        })
+        const noOfQuestions = this.config.get<number>("DAILY_QUESTION_COUNT" ,5)
+
         //else pick 5 new questions 
-        const newQuestions = await this.pickNewQuestions(user , 1 ,5 )
+        const newQuestions = await this.pickNewQuestions(user , userProgress.level ,noOfQuestions )
         const newUserQuestions = newQuestions.map(question => ({
             userId: user.id,
             questionId: question.id,
@@ -87,7 +96,7 @@ export class QuizService {
 
         //if correct -> update userprogress and userquestion
         if (option.correct){
-            await this.prismaService.userProgress.update({
+            const newProgress = await this.prismaService.userProgress.update({
                 where:{
                     userId:user.id,
                 },
@@ -98,10 +107,31 @@ export class QuizService {
                     totalCorrects:{
                         increment:1
                     }
-                
+                },
+                select:{
+                    totalPoints:true,
+                    level:true
                 }
             })
+
+            // if total points exceed current level threshold update level
+            const levelThreshold = this.config.get<number>("LEVEL_THRESHOLD")
+
+            if(newProgress.totalPoints >= levelThreshold * newProgress.level){
+                await this.prismaService.userProgress.update({
+                    where:{
+                        userId:user.id,
+                    },
+                    data:{
+                        level:{
+                            increment: 1
+                        },
+                    }
+            })
+            }
         }
+
+
 
         
         await this.prismaService.userQuestion.update({
@@ -151,7 +181,7 @@ export class QuizService {
               },
               level: level, 
             },
-            take: noOfQuestions,
+            take: +noOfQuestions,
             include:{
                 QuestionOption: {
                     select:{

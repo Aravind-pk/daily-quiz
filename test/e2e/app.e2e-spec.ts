@@ -157,7 +157,7 @@ describe('AppController (e2e)', () => {
   });
 
 
-  describe('Answer Question', () => {
+  describe('Answer Question',  () => {
 
     it('should throw on no optionId', async () => {
       await pactum
@@ -204,7 +204,17 @@ describe('AppController (e2e)', () => {
         .expectBodyContains("Invalid option for the requested question")
     });
 
-    it('should answer question', async () => {
+    //get correct answer
+
+
+    it('should answer question correctly', async () => {
+      const q1Ans = await prisma.questionOption.findFirst({
+        where:{
+          questionId:questionsAsked[0].questionId,
+          correct:true
+        }
+      }) 
+
       console.log(questionsAsked[0].question)
       await pactum
         .spec()
@@ -214,7 +224,7 @@ describe('AppController (e2e)', () => {
         })
         .withJson({
           "questionId": questionsAsked[0].questionId,
-          "optionId": questionsAsked[0].question.QuestionOption[0].id
+          "optionId": q1Ans.id
         })
         .expectStatus(200)
         .expectJsonLength(questionsAsked[0].question.QuestionOption.length)
@@ -235,6 +245,47 @@ describe('AppController (e2e)', () => {
         .expectStatus(403)
         .expectBodyContains("This question have already been answered")
     });
+
+    describe("should increment level" , ()=>{
+
+      it('should answer one more question correctly', async () => {
+        const q2Ans = await prisma.questionOption.findFirst({
+          where:{
+            questionId:questionsAsked[1].questionId,
+            correct:true
+          }
+        }) 
+        await pactum
+          .spec()
+          .post('/quiz/answer')
+          .withHeaders({
+            'Authorization': 'Bearer $S{userToken}'
+          })
+          .withJson({
+            "questionId": questionsAsked[1].questionId,
+            "optionId": q2Ans.id
+          })
+          .expectStatus(200)
+          .expectJsonLength(questionsAsked[1].question.QuestionOption.length)
+      });
+
+      it('should verify userprogress', async () => {
+        await pactum
+          .spec()
+          .get('/user-progress/me')
+          .withHeaders({
+            'Authorization': 'Bearer $S{userToken}'
+          })
+          .expectStatus(200)
+          .expectJsonLike({
+            level:2
+          })
+      });
+
+
+
+    })
+
   });
 
 
